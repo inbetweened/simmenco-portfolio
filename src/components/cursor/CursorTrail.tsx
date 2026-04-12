@@ -14,8 +14,8 @@ const DOTS = [
 
 function TrailDot({ config, sourceX, sourceY }: {
   config: typeof DOTS[number]
-  sourceX: ReturnType<typeof useMotionValue>
-  sourceY: ReturnType<typeof useMotionValue>
+  sourceX: ReturnType<typeof useMotionValue<number>>
+  sourceY: ReturnType<typeof useMotionValue<number>>
 }) {
   const x = useSpring(sourceX, { stiffness: config.stiffness, damping: config.damping, mass: 0.5 })
   const y = useSpring(sourceY, { stiffness: config.stiffness, damping: config.damping, mass: 0.5 })
