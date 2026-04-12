@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* ── System cursor override ─────────────────────────────────────── */
+  @media (hover: hover) and (pointer: fine) {
+    * { cursor: none !important; }
+  }
+
+  /* ── Base document styles ───────────────────────────────────────── */
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: #F7F4F0;
+    color: #181614;
+    min-height: 100vh;
+
+    /* Noise texture — opacity bumped to 0.12 so the grain is clearly visible */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 220px 220px;
+  }
+
+  /* ── Selection style ────────────────────────────────────────────── */
+  ::selection {
+    background-color: #181614;
+    color: #F7F4F0;
+  }
+
+  /* ── Focus styles ───────────────────────────────────────────────── */
+  :focus-visible {
+    outline: 2px solid #181614;
+    outline-offset: 3px;
+  }
+
+  /* ── Scrollbar ──────────────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #F7F4F0; }
+  ::-webkit-scrollbar-thumb { background: #E2DFDB; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #9C9590; }
+}
+
+@layer utilities {
+  /* Atmospheric gradient — warm amber top-left, cool blue-grey bottom-right */
+  .bg-atmosphere {
+    background:
+      radial-gradient(ellipse 80% 55% at 10% 15%, rgba(220, 185, 130, 0.28) 0%, transparent 65%),
+      radial-gradient(ellipse 60% 45% at 88% 82%, rgba(160, 185, 210, 0.16) 0%, transparent 60%);
+  }
+
+}
