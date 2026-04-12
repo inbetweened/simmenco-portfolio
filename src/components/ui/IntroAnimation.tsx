@@ -46,7 +46,7 @@ export function IntroAnimation() {
 
   return (
     <AnimatePresence>
-      {phase !== 'done' && (
+      {(phase === 'entering' || phase === 'holding' || phase === 'exiting') && (
         <motion.div
           key="intro"
           className="fixed inset-0 z-[9990] bg-background flex items-center justify-center"

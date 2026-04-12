@@ -28,7 +28,7 @@ function Shape({ shape, cursorX, cursorY, containerRef }: {
   shape: typeof SHAPES[number]
   cursorX: ReturnType<typeof useMotionValue<number>>
   cursorY: ReturnType<typeof useMotionValue<number>>
-  containerRef: React.RefObject<HTMLDivElement>
+  containerRef: React.RefObject<HTMLDivElement | null>
 }) {
   const ox = useSpring(0, { stiffness: 70, damping: 22, mass: 0.6 })
   const oy = useSpring(0, { stiffness: 70, damping: 22, mass: 0.6 })
