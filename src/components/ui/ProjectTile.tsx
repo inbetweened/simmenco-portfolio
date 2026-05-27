@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { useCursor } from '@/hooks/useCursor'
 import { ITWebTile } from '@/components/ui/ITWebTile'
+import { RiveProjectTile } from '@/components/rive/RiveProjectTile'
 import type { Project } from '@/lib/constants'
 
 interface ProjectTileProps {
@@ -13,7 +14,7 @@ interface ProjectTileProps {
 
 export function ProjectTile({ project }: ProjectTileProps) {
   const { setCursorState } = useCursor()
-  const { id, title, category, year, tagline, accent, image, video, imageFit = 'cover', noPage } = project
+  const { id, title, category, year, tagline, accent, image, video, imageFit = 'cover', noPage, tileRive } = project
 
   const className = "group relative overflow-hidden rounded-xl block w-full h-full"
   const events = {
@@ -25,7 +26,9 @@ export function ProjectTile({ project }: ProjectTileProps) {
     <>
       {/* ── Media layer ──────────────────────────────────────────────── */}
       <div className="absolute inset-0 w-full h-full">
-        {video ? (
+        {tileRive ? (
+          <RiveProjectTile rive={tileRive} accent={accent} />
+        ) : video ? (
           <video
             src={video}
             autoPlay
@@ -56,17 +59,17 @@ export function ProjectTile({ project }: ProjectTileProps) {
 
       {/* ── Hover overlay ────────────────────────────────────────────── */}
       <div
-        className="
-          absolute inset-0
-          bg-[#0e0d0c]/0 group-hover:bg-[#0e0d0c]/60
+        className={`
+          absolute inset-0 pointer-events-none
+          bg-[#0e0d0c]/0 ${tileRive ? 'group-hover:bg-[#0e0d0c]/35' : 'group-hover:bg-[#0e0d0c]/60'}
           transition-colors duration-500
-        "
+        `}
       />
 
       {/* ── Hover text ───────────────────────────────────────────────── */}
       <div
         className="
-          absolute inset-x-0 bottom-0 p-5 sm:p-6
+          absolute inset-x-0 bottom-0 p-5 sm:p-6 pointer-events-none
           translate-y-3 opacity-0
           group-hover:translate-y-0 group-hover:opacity-100
           transition-all duration-500 ease-out

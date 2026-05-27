@@ -8,6 +8,8 @@ import { MagneticButton } from '@/components/ui/MagneticButton'
 import { SectionLabel } from '@/components/ui/SectionLabel'
 import { VideoPlayer } from '@/components/ui/VideoPlayer'
 import { PortfolioPlayground } from '@/components/ui/PortfolioPlayground'
+import { RiveCanvas } from '@/components/rive/RiveCanvas'
+import { GazeDetailExperience } from '@/components/rive/GazeDetailExperience'
 import { heroLineVariants, heroStagger, fadeUpVariants } from '@/lib/motion'
 import type { Project } from '@/lib/constants'
 
@@ -16,7 +18,7 @@ interface ProjectPageClientProps {
 }
 
 export function ProjectPageClient({ project }: ProjectPageClientProps) {
-  const { title, category, year, description, accent, content, sections, tags, video, image, videos, youtubeId, gallery } = project
+  const { title, category, year, description, accent, content, sections, tags, video, image, videos, youtubeId, gallery, detailRive } = project
   const [lightbox, setLightbox] = useState<string | null>(null)
 
   useEffect(() => {
@@ -66,7 +68,40 @@ export function ProjectPageClient({ project }: ProjectPageClientProps) {
       </AnimatePresence>
 
       {/* ── Hero media area ─────────────────────────────────────────── */}
-      {project.id === 'portfolio' ? (
+      {project.id === 'rive-gaze-system' ? (
+        <motion.div
+          className="w-full h-[52vh] sm:h-[64vh] overflow-hidden flex items-center justify-center bg-background"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <GazeDetailExperience />
+        </motion.div>
+      ) : detailRive ? (
+        <motion.div
+          className="w-full h-[46vh] sm:h-[58vh] overflow-hidden flex items-center justify-center"
+          style={{ backgroundColor: detailRive.background ?? accent }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <motion.div
+            className="w-full h-full max-w-container px-6 lg:px-12 py-10"
+            initial={{ scale: 0.97, y: 16 }}
+            animate={{ scale: 1, y: 0 }}
+            transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <RiveCanvas
+              src={detailRive.src}
+              artboard={detailRive.artboard}
+              animation={detailRive.animation}
+              stateMachine={detailRive.stateMachine}
+              hoverInput={detailRive.hoverInput}
+              className="w-full h-full"
+            />
+          </motion.div>
+        </motion.div>
+      ) : project.id === 'portfolio' ? (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

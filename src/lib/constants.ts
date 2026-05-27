@@ -25,6 +25,15 @@ export type TileSize =
 
 export type MediaType = 'image' | 'video'
 
+export interface RiveMedia {
+  src: string
+  artboard: string
+  animation?: string
+  stateMachine?: string
+  hoverInput?: string
+  background?: string
+}
+
 export interface Project {
   id: string
   title: string
@@ -56,6 +65,8 @@ export interface Project {
   tags?: string[]
   /** Gallery images shown on the project page */
   gallery?: { src: string; label?: string; aspectRatio?: string }[]
+  tileRive?: RiveMedia
+  detailRive?: RiveMedia
   /** If true, tile has no project page — hover only, no navigation */
   noPage?: boolean
 }
@@ -80,7 +91,33 @@ export const WORK_EXPERIENCE: WorkExperience[] = [
   },
 ]
 
-export const PROJECTS: Project[] = [
+export const PROJECTS: Project[] = ([
+  {
+    id: 'rive-gaze-system',
+    title: 'Interactive Rive System',
+    category: 'Rive · Interaction',
+    year: '2026',
+    tagline: 'Interaktives System gemacht mit Rive-Artboards und State Machines.',
+    description: 'Rive Experiment',
+    size: 'tall' as const,
+    accent: '#E8E2D9',
+    tileRive: {
+      src: '/rive/cursor_gaze.riv',
+      artboard: 'redVertical',
+      stateMachine: 'State Machine 1',
+      background: '#E8E2D9',
+    },
+    detailRive: {
+      src: '/rive/cursor_gaze.riv',
+      artboard: 'Main',
+      stateMachine: 'State Machine 1',
+      background: '#F7F4F0',
+    },
+content: `Diese Rive-Datei funktioniert wie ein kleines visuelles System: Verschiedene Formate, Farbvarianten und Augen-Artboards können als interaktive Interface-Elemente eingesetzt werden.
+Die Kachel auf der Startseite verwendet das Artboard „redVertical“ als individuelles Thumbnail. Auf der Detailseite wird das grössere „Main“-Artboard gezeigt, damit das System auf grösserer Fläche mehr Wirkung entfalten kann.
+Der Fokus liegt nicht nur auf einem einzelnen fertigen Asset, sondern auf einem modularen Set visueller Bausteine, die später Navigation, Hover-States und kleine UI-Reaktionen unterstützen können.`,
+tags: ['Rive', 'Artboards', 'Interaction Design', 'Visuelles System'],
+  },
   {
     id: 'foto-workflow',
     title: 'Foto Workflow',
@@ -105,7 +142,7 @@ export const PROJECTS: Project[] = [
     year: '2025',
     tagline: 'Animierter Markenauftritt für den zentralschweizer Bildungstreffpunkt.',
     description: 'Ich habe die Animation für den Markenauftritt des zentralschweizer Bildungstreffpunkts zebi umgesetzt — eine lebendige, jugendlich-frische Bewegtbild-Identität.',
-    size: 'small',
+    size: 'small' as const,
     accent: '#7BBFBE',
     image: '/work/zebi/thumbnail.png',
     video: '/work/zebi/video.mp4',
@@ -156,6 +193,40 @@ export const PROJECTS: Project[] = [
     ],
     tags: ['Motion Design', 'After Effects', 'Illustrator', 'Premiere Pro', 'UX', 'Erklärfilm'],
   },
+{
+  id: 'rive-isocube',
+  title: 'Isocube',
+  category: 'Rive · Interactive Toy',
+  year: '2026',
+  tagline: 'Ein kleines isometrisches Rive-Objekt mit interaktivem Hover-State.',
+  description: 'Ein interaktives Rive-Experiment mit einem isometrischen Objekt, das über eine State Machine auf Hover reagiert.',
+  size: 'small',
+  accent: '#D8B84A',
+
+  tileRive: {
+    src: '/rive/iso_toy_001.riv',
+    artboard: 'isocube',
+    stateMachine: 'State Machine 1',
+    hoverInput: 'Hovered',
+    background: '#F0E5B8',
+  },
+
+detailRive: {
+  src: '/rive/iso_toy_001.riv',
+  artboard: 'Artboard',
+  stateMachine: 'State Machine 1',
+  hoverInput: 'Hovered',
+  background: '#F3F1E8',
+},
+
+  content: `Isocube ist ein kleines interaktives Rive-Experiment mit einem klaren Fokus auf Reaktion und Verhalten. Anders als eine reine Timeline-Animation arbeitet die Datei mit einer State Machine und einem eigenen Hover-Input namens „Hovered“.
+
+Dadurch reagiert das Objekt direkt auf den Cursor: Bereits auf der Startseite wird der Hover-State ausgelöst, während auf der Detailseite das vollständige Artboard grösser und ruhiger präsentiert wird.
+
+Das Projekt dient als erster Schritt in Richtung interaktiver UI-Bausteine, die sich weniger wie reine Dekoration und mehr wie echte Bestandteile eines lebendigen Interfaces anfühlen.`,
+
+  tags: ['Rive', 'State Machine', 'Hover Interaction', 'Interactive Asset'],
+},
   {
     id: 'it-support-web',
     title: 'IT & Web bei der Messe Luzern',
@@ -250,4 +321,4 @@ export const PROJECTS: Project[] = [
     ],
     tags: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Framer Motion', 'Selbst gebaut', 'KI-unterstützt'],
   },
-]
+] as Project[]).filter((project) => !['foto-workflow', 'it-support-web'].includes(project.id))
