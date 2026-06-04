@@ -52,7 +52,7 @@ export function Header() {
           </Link>
         </div>
         <div className="menu-footer">
-          <span>(c) 2026 Daniel Simmen</span>
+          <span>© 2026 Daniel Simmen</span>
           <a href="mailto:daniel@simmen.co">
             Email
           </a>
