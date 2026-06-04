@@ -1,0 +1,117 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+
+export function LogoAnimation() {
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const logoRef = useRef<SVGSVGElement | null>(null);
+  const partARef = useRef<SVGPathElement | null>(null);
+  const partBRef = useRef<SVGPathElement | null>(null);
+
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    const logo = logoRef.current;
+    const partA = partARef.current;
+    const partB = partBRef.current;
+
+    if (!wrap || !logo || !partA || !partB) return;
+
+    let bounds = wrap.getBoundingClientRect();
+
+    const onEnter = () => {
+      bounds = wrap.getBoundingClientRect();
+
+      gsap.to(logo, {
+        scale: 1.035,
+        duration: 0.35,
+        ease: "power3.out",
+      });
+
+      gsap.to([partA, partB], {
+        filter: "drop-shadow(0 0 18px rgba(16,16,14,.22))",
+        duration: 0.35,
+      });
+    };
+
+    const onMove = (event: MouseEvent) => {
+      const centerX = bounds.left + bounds.width / 2;
+      const centerY = bounds.top + bounds.height / 2;
+      const dx = event.clientX - centerX;
+      const dy = event.clientY - centerY;
+
+      gsap.to(logo, {
+        x: dx * 0.035,
+        y: dy * 0.035,
+        rotateX: dy * -0.012,
+        rotateY: dx * 0.012,
+        duration: 0.65,
+        ease: "power3.out",
+      });
+
+      gsap.to(partA, {
+        x: dx * -0.018,
+        y: dy * -0.018,
+        rotate: dx * -0.002,
+        duration: 0.65,
+        ease: "power3.out",
+      });
+
+      gsap.to(partB, {
+        x: dx * 0.026,
+        y: dy * 0.026,
+        rotate: dx * 0.003,
+        duration: 0.65,
+        ease: "power3.out",
+      });
+    };
+
+    const onLeave = () => {
+      gsap.to(logo, {
+        x: 0,
+        y: 0,
+        rotateX: 0,
+        rotateY: 0,
+        scale: 1,
+        duration: 0.9,
+        ease: "elastic.out(1, 0.45)",
+      });
+
+      gsap.to([partA, partB], {
+        x: 0,
+        y: 0,
+        rotate: 0,
+        filter: "drop-shadow(0 0 8px rgba(16,16,14,.1))",
+        duration: 0.9,
+        ease: "elastic.out(1, 0.45)",
+      });
+    };
+
+    wrap.addEventListener("mouseenter", onEnter);
+    wrap.addEventListener("mousemove", onMove);
+    wrap.addEventListener("mouseleave", onLeave);
+
+    return () => {
+      wrap.removeEventListener("mouseenter", onEnter);
+      wrap.removeEventListener("mousemove", onMove);
+      wrap.removeEventListener("mouseleave", onLeave);
+    };
+  }, []);
+
+  return (
+    <div className="header-logo-wrap" ref={wrapRef} aria-label="Animated DS logo">
+      <svg id="logo" ref={logoRef} viewBox="440 270 1020 520" role="img">
+        <path
+          ref={partARef}
+          className="logo-part part-a"
+          d="M989.67,433.55c74.19-81.58,155.41-147.2,270.59-148.32,36.68-.35,71.37,3.21,104.97,16.47s76.69,42.93,72.87,76.37c-1.14,9.96-7.95,17.69-15.73,19.74-9.38,2.48-20.58-1.73-25.46-10.68-9.06-16.64-20.95-28.39-38.58-36.16-21.81-9.62-44.6-13.64-68.67-15.82-127.71-11.57-205.64,64.24-285.84,152.97l-98.83,109.36c-23.93,26.48-47.78,50.77-73.89,74.92-72.61,67.14-158.68,108.64-259.57,95.62-60.79-7.84-112.06-58.18-112.21-121.42l-.73-301.39c-.08-32.95,28.55-57.9,59.97-59.01,34.16-1.2,65.85-1.05,99.98-.42,131.89,2.43,211.9,86.83,294.16,180.12l-31.78,34.84-41.55-45.05c-60.3-64.09-128.5-120.88-220.88-121.17l-93.41-.29c-12.44-.04-20.42,10.47-20.39,22.09l.65,283.84c.1,43.94,34.6,76.91,76.95,81.44,89.3,9.55,163.91-33.98,226.89-94.55,31.77-30.56,60.68-61.71,90.41-94.4l90.1-99.08Z"
+        />
+        <path
+          ref={partBRef}
+          className="logo-part part-b"
+          d="M992.3,556.07c48.12,50.88,97.17,108.3,157.87,139.39,49.68,25.45,105.87,34.61,159.59,20.22,26.98-7.22,49.61-22.69,60.7-47.59,14.66-32.93,5.24-69.57-24.53-89.84-10.21-6.95-21.79-13.39-33.84-16.98l-70.52-20.99c-10.16-3.03-19.17-8.63-24.4-18.11-3.64-6.61-2.72-17.98,1.53-23.5,3.83-4.98,14.34-10.61,22.81-8.81,37.22,7.91,72.75,18.84,107.43,34.39,28.71,12.88,52.79,33.27,65.34,62.43,17.69,41.08,12.85,89.63-14.12,125.52-18.79,25-45.61,41.32-76.19,49.36-74.22,19.51-152.97,6.02-217.58-34.86-56.55-35.78-101.05-85.51-146.15-135.44l32.06-35.19Z"
+        />
+      </svg>
+    </div>
+  );
+}
