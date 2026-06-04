@@ -56,6 +56,9 @@ export function Header() {
           <a href="mailto:daniel@simmen.co">
             Email
           </a>
+          <a href="https://www.linkedin.com/in/danielsimmen" target="_blank" rel="noreferrer">
+            LinkedIn
+          </a>
         </div>
       </nav>
     </header>

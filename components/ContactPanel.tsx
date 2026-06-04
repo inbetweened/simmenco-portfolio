@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowUpRight, Check, Copy, Mail } from "lucide-react";
+import { ArrowUpRight, Check, Copy, Link as LinkIcon, Mail } from "lucide-react";
 
 const email = "daniel@simmen.co";
+const linkedin = "https://www.linkedin.com/in/danielsimmen";
 
 export function ContactPanel() {
   const [copied, setCopied] = useState(false);
@@ -37,6 +38,11 @@ export function ContactPanel() {
         <a className="contact-action" href={`mailto:${email}?subject=Project%20Inquiry`}>
           <ArrowUpRight size={24} strokeWidth={2.1} />
           <span>Project Inquiry</span>
+        </a>
+
+        <a className="contact-action" href={linkedin} target="_blank" rel="noreferrer">
+          <LinkIcon size={24} strokeWidth={2.1} />
+          <span>LinkedIn</span>
         </a>
       </div>
     </div>

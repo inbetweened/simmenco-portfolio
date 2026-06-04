@@ -28,6 +28,11 @@ body {
   letter-spacing: 0;
 }
 
+::selection {
+  background: #000;
+  color: #fff;
+}
+
 a {
   color: inherit;
   text-decoration: none;
