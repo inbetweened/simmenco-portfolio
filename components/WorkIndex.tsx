@@ -2,9 +2,34 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { AnimatePresence, MotionConfig, motion, type Variants } from "framer-motion";
 import { Grid2X2, List, X } from "lucide-react";
 import { workFilters, type WorkFilter, type WorkItem } from "@/lib/types";
+import { EASE } from "./motion/Reveal";
 import { RivePreview } from "./RivePreview";
+
+const MotionLink = motion.create(Link);
+
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 30, scale: 0.98 },
+  visible: (index: number) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.6, ease: EASE, delay: index * 0.055 },
+  }),
+  exit: { opacity: 0, scale: 0.97, transition: { duration: 0.24, ease: "easeOut" } },
+};
+
+const toolbarVariants: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.045, delayChildren: 0.15 } },
+};
+
+const toolbarItemVariants: Variants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
+};
 
 function ArchiveVideo({
   previewEnd,
@@ -148,29 +173,63 @@ export function WorkIndex({ items }: { items: WorkItem[] }) {
   const [view, setView] = useState<"grid" | "list">("grid");
   const [activeVideo, setActiveVideo] = useState<WorkItem | null>(null);
   const [activePreview, setActivePreview] = useState<string | null>(null);
-
   const filteredItems = useMemo(() => {
     if (activeFilter === "Everything") return items;
     return items.filter((item) => item.tags.includes(activeFilter));
   }, [activeFilter, items]);
 
+  // Modal keyboard nav: Esc closes, arrows or A/D jump prev/next (wraps around)
+  useEffect(() => {
+    if (!activeVideo) return;
+
+    const playable = filteredItems.filter((item) => item.video || item.youtube);
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setActiveVideo(null);
+        return;
+      }
+
+      const key = event.key.toLowerCase();
+      const direction =
+        event.key === "ArrowRight" || key === "d" ? 1 : event.key === "ArrowLeft" || key === "a" ? -1 : 0;
+      if (!direction) return;
+
+      const index = playable.findIndex((item) => item.slug === activeVideo.slug);
+      if (index === -1) return;
+
+      event.preventDefault();
+      setActiveVideo(playable[(index + direction + playable.length) % playable.length]);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [activeVideo, filteredItems]);
+
   return (
+    <MotionConfig reducedMotion="user">
     <section className="work-archive">
-      <div className="archive-toolbar">
+      <motion.div
+        className="archive-toolbar"
+        variants={toolbarVariants}
+        initial="hidden"
+        animate="visible"
+      >
         <div className="filter-row" aria-label="Work filters">
           {workFilters.map((filter) => (
-            <button
+            <motion.button
               className={filter === activeFilter ? "is-active" : ""}
               key={filter}
               type="button"
+              variants={toolbarItemVariants}
               onClick={() => setActiveFilter(filter)}
             >
               {filter}
-            </button>
+            </motion.button>
           ))}
         </div>
 
-        <div className="view-toggle" aria-label="View mode">
+        <motion.div className="view-toggle" aria-label="View mode" variants={toolbarItemVariants}>
           <button
             className={view === "list" ? "is-active" : ""}
             type="button"
@@ -187,61 +246,79 @@ export function WorkIndex({ items }: { items: WorkItem[] }) {
           >
             <Grid2X2 size={22} strokeWidth={2.5} />
           </button>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {filteredItems.length > 0 ? (
         <div className={`archive-grid ${view === "list" ? "is-list" : ""}`}>
-          {filteredItems.map((item) => {
-            const content = (
-              <>
-                <div className="archive-media" style={{ "--accent": item.accent } as React.CSSProperties}>
-                  <WorkMedia item={item} shouldPlay={item.autoplayPreview === true || activePreview === item.slug} />
-                </div>
-                <div className="archive-meta">
-                  <span>{item.eyebrow}</span>
-                  <h2>{item.title}</h2>
-                  <p>{item.description}</p>
-                </div>
-              </>
-            );
+          <AnimatePresence mode="popLayout">
+            {filteredItems.map((item, index) => {
+              const motionProps = {
+                layout: true,
+                variants: cardVariants,
+                initial: "hidden" as const,
+                animate: "visible" as const,
+                exit: "exit" as const,
+                custom: index,
+                transition: { layout: { duration: 0.55, ease: EASE } },
+              };
 
-          if (item.video || item.youtube) {
-            return (
-              <button
-                className="archive-card archive-card-button"
-                key={item.slug}
-                type="button"
-                onBlur={() => setActivePreview(null)}
-                onClick={() => setActiveVideo(item)}
-                onFocus={() => setActivePreview(item.slug)}
-                onMouseEnter={() => setActivePreview(item.slug)}
-                onMouseLeave={() => setActivePreview(null)}
-              >
-                {content}
-              </button>
-            );
-          }
-
-          if (item.href) {
-            return (
-              <Link className="archive-card" href={item.href} key={item.slug}>
-                  {content}
-                </Link>
+              const content = (
+                <>
+                  <div className="archive-media" style={{ "--accent": item.accent } as React.CSSProperties}>
+                    <WorkMedia item={item} shouldPlay={item.autoplayPreview === true || activePreview === item.slug} />
+                  </div>
+                  <div className="archive-meta">
+                    <span>{item.eyebrow}</span>
+                    <h2>{item.title}</h2>
+                    <p>{item.description}</p>
+                  </div>
+                </>
               );
-            }
 
-            return (
-              <article className="archive-card" key={item.slug}>
-                {content}
-              </article>
-            );
-          })}
+              if (item.video || item.youtube) {
+                return (
+                  <motion.button
+                    className="archive-card archive-card-button"
+                    key={item.slug}
+                    type="button"
+                    {...motionProps}
+                    onBlur={() => setActivePreview(null)}
+                    onClick={() => setActiveVideo(item)}
+                    onFocus={() => setActivePreview(item.slug)}
+                    onMouseEnter={() => setActivePreview(item.slug)}
+                    onMouseLeave={() => setActivePreview(null)}
+                  >
+                    {content}
+                  </motion.button>
+                );
+              }
+
+              if (item.href) {
+                return (
+                  <MotionLink className="archive-card" href={item.href} key={item.slug} {...motionProps}>
+                    {content}
+                  </MotionLink>
+                );
+              }
+
+              return (
+                <motion.article className="archive-card" key={item.slug} {...motionProps}>
+                  {content}
+                </motion.article>
+              );
+            })}
+          </AnimatePresence>
         </div>
       ) : (
-        <div className="archive-empty">
+        <motion.div
+          className="archive-empty"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: EASE }}
+        >
           <p>No work in {activeFilter} yet.</p>
-        </div>
+        </motion.div>
       )}
 
       {activeVideo && (activeVideo.video || activeVideo.youtube) ? (
@@ -258,6 +335,7 @@ export function WorkIndex({ items }: { items: WorkItem[] }) {
             </button>
             {activeVideo.youtube ? (
               <iframe
+                key={activeVideo.slug}
                 src={activeVideo.youtube}
                 title={activeVideo.title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -265,15 +343,17 @@ export function WorkIndex({ items }: { items: WorkItem[] }) {
                 allowFullScreen
               />
             ) : (
-              <video src={activeVideo.video} controls autoPlay playsInline />
+              <video key={activeVideo.slug} src={activeVideo.video} controls autoPlay playsInline />
             )}
             <div className="video-caption">
               <span>{activeVideo.eyebrow}</span>
               <strong>{activeVideo.title}</strong>
+              <span className="video-hint">← → or A / D to browse · Esc to close</span>
             </div>
           </div>
         </div>
       ) : null}
     </section>
+    </MotionConfig>
   );
 }

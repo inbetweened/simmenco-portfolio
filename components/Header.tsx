@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { LogoAnimation } from "./LogoAnimation";
+import { MotionConfig, motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { EASE } from "./motion/Reveal";
 
 type HeaderProps = {
   statement?: string | null;
@@ -12,6 +13,10 @@ type HeaderProps = {
 
 export function Header({ statement, email, linkedin }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const reduceMotion = useReducedMotion();
+  const { scrollY } = useScroll();
+  // statement lags behind the page scroll for a subtle depth cue
+  const statementDrift = useTransform(scrollY, [0, 700], [0, 46]);
   const headerStatement =
     statement ?? "A collection of work across print, motion, digital, and everything in between.";
   const emailAddress = email ?? "daniel@simmen.co";
@@ -19,10 +24,35 @@ export function Header({ statement, email, linkedin }: HeaderProps) {
 
   return (
     <header className={`site-header ${isOpen ? "menu-open" : ""}`}>
-      <Link href="/" className="brand-mark" aria-label="DS home" onClick={() => setIsOpen(false)}>
-        <LogoAnimation />
+      <Link href="/" className="brand-mark" aria-label="Home" onClick={() => setIsOpen(false)}>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M4 21 V10 L12 3.5 L20 10 V21 H14.5 V14.5 H9.5 V21 Z"
+            pathLength={100}
+            stroke="currentColor"
+            strokeWidth={1.8}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
       </Link>
-      <p className="header-statement">{headerStatement}</p>
+      <MotionConfig reducedMotion="user">
+        <motion.p
+          className="header-statement"
+          style={reduceMotion ? undefined : { y: statementDrift }}
+        >
+          <span className="reveal-mask">
+            <motion.span
+              className="reveal-line"
+              initial={{ y: "112%" }}
+              animate={{ y: "0%" }}
+              transition={{ duration: 0.85, ease: EASE, delay: 0.1 }}
+            >
+              {headerStatement}
+            </motion.span>
+          </span>
+        </motion.p>
+      </MotionConfig>
       <div className="header-actions">
         <Link href="/work" onClick={() => setIsOpen(false)}>
           Work

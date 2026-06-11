@@ -52,7 +52,7 @@ textarea {
   align-items: start;
   display: grid;
   gap: clamp(34px, 5vw, 84px);
-  grid-template-columns: clamp(122px, 10vw, 178px) minmax(420px, 1fr) auto;
+  grid-template-columns: max-content minmax(420px, 1fr) auto;
   margin: 0 auto;
   max-width: 1920px;
   padding: clamp(36px, 5vw, 56px) var(--gutter) clamp(70px, 8vw, 155px);
@@ -61,10 +61,45 @@ textarea {
 }
 
 .brand-mark {
+  color: var(--ink);
   display: block;
+  padding-top: 4px;
   position: relative;
-  width: 100%;
   z-index: 23;
+}
+
+.brand-mark svg {
+  display: block;
+  height: auto;
+  overflow: visible;
+  width: clamp(30px, 2.4vw, 44px);
+}
+
+/* Self-drawing hover: the outline un-draws and redraws in one pass */
+.brand-mark svg path {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 0;
+}
+
+.brand-mark:hover svg path,
+.brand-mark:focus-visible svg path {
+  animation: home-redraw 1.15s cubic-bezier(0.85, 0, 0.15, 1);
+}
+
+@keyframes home-redraw {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -200;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-mark:hover svg path,
+  .brand-mark:focus-visible svg path {
+    animation: none;
+  }
 }
 
 .header-statement {
@@ -75,6 +110,19 @@ textarea {
   margin: -0.18em 0 0;
   max-width: 1050px;
 }
+
+/* Entry choreography: masked line reveal */
+.reveal-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.1em;
+}
+
+.reveal-line {
+  display: block;
+  will-change: transform;
+}
+
 
 .header-actions {
   align-items: center;
@@ -159,7 +207,6 @@ textarea {
   position: fixed;
   left: var(--gutter);
   top: clamp(36px, 5vw, 56px);
-  width: clamp(122px, 10vw, 178px);
   z-index: 26;
 }
 
@@ -293,27 +340,6 @@ textarea {
 
 .hero {
   display: none;
-}
-
-.header-logo-wrap {
-  cursor: pointer;
-  perspective: 1000px;
-  width: 100%;
-}
-
-.header-logo-wrap svg {
-  display: block;
-  overflow: visible;
-  aspect-ratio: 2 / 1;
-  transform-style: preserve-3d;
-  width: 100%;
-}
-
-.logo-part {
-  fill: var(--ink);
-  filter: drop-shadow(0 0 8px rgba(16, 16, 14, 0.1));
-  transform-box: fill-box;
-  transform-origin: center;
 }
 
 .section {
@@ -608,6 +634,19 @@ textarea {
   width: 100%;
 }
 
+.archive-media video,
+.archive-media .rive-preview,
+.archive-media > span {
+  transition: transform 0.7s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.archive-card:hover .archive-media video,
+.archive-card:focus-visible .archive-media video,
+.archive-card:hover .archive-media .rive-preview,
+.archive-card:hover .archive-media > span {
+  transform: scale(1.035);
+}
+
 .archive-media iframe {
   border: 0;
   pointer-events: none;
@@ -642,6 +681,7 @@ textarea {
 
 .archive-meta span {
   font-size: clamp(1rem, 1.2vw, 1.35rem);
+  transition: color 0.25s ease;
 }
 
 .archive-meta h2 {
@@ -649,6 +689,16 @@ textarea {
   font-weight: 400;
   line-height: 1.05;
   margin: 0;
+  transition: transform 0.45s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.archive-card:hover .archive-meta h2,
+.archive-card:focus-visible .archive-meta h2 {
+  transform: translateX(10px);
+}
+
+.archive-card:hover .archive-meta span {
+  color: var(--accent);
 }
 
 .archive-meta p {
@@ -688,6 +738,51 @@ textarea {
   font-size: clamp(1.4rem, 2.4vw, 3rem);
   line-height: 1;
   margin: 0;
+}
+
+.not-found {
+  display: grid;
+  gap: clamp(18px, 2.5vw, 38px);
+  justify-items: start;
+  margin: 0 auto;
+  max-width: 1920px;
+  padding: 0 var(--gutter) clamp(96px, 12vw, 200px);
+}
+
+.not-found-code {
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding-top: 16px;
+  text-transform: uppercase;
+  width: min(420px, 60vw);
+}
+
+.not-found h1 {
+  font-size: clamp(2.4rem, 6.5vw, 8.8rem);
+  line-height: 0.82;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.not-found p {
+  color: var(--muted);
+  font-size: clamp(1.2rem, 2vw, 2.4rem);
+  line-height: 1.05;
+  margin: 0;
+  max-width: 880px;
+}
+
+.not-found-actions {
+  align-items: center;
+  display: flex;
+  gap: clamp(22px, 3vw, 44px);
+}
+
+.not-found-actions .back-link {
+  margin-bottom: 0;
 }
 
 .video-modal {
@@ -764,6 +859,21 @@ textarea {
   font-weight: 400;
   line-height: 0.95;
   text-transform: uppercase;
+}
+
+.video-hint {
+  color: rgba(248, 247, 242, 0.42);
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  margin-top: 6px;
+  text-transform: none;
+}
+
+@media (hover: none) {
+  .video-hint {
+    display: none;
+  }
 }
 
 .about-band {
@@ -973,7 +1083,7 @@ textarea {
 @media (max-width: 820px) {
   .site-header {
     gap: 24px;
-    grid-template-columns: 88px 1fr;
+    grid-template-columns: max-content 1fr;
     padding-bottom: 92px;
   }
 
@@ -993,7 +1103,6 @@ textarea {
   .site-header.menu-open .brand-mark {
     left: 24px;
     top: 36px;
-    width: 88px;
   }
 
   .site-header.menu-open .header-actions {
@@ -1097,6 +1206,28 @@ textarea {
 
   .archive-meta p {
     grid-column: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .archive-media video,
+  .archive-media .rive-preview,
+  .archive-media > span,
+  .archive-meta h2 {
+    transition: none;
+  }
+
+  .archive-card:hover .archive-media video,
+  .archive-card:focus-visible .archive-media video,
+  .archive-card:hover .archive-media .rive-preview,
+  .archive-card:hover .archive-media > span,
+  .archive-card:hover .archive-meta h2,
+  .archive-card:focus-visible .archive-meta h2 {
+    transform: none;
   }
 }
 
