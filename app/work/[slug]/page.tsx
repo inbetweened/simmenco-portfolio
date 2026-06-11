@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/Header";
-import { projects } from "@/data/projects";
+import { getProjectBySlug, getProjectSlugs, getSiteSettings } from "@/lib/sanity/fetch";
 
 type ProjectPageProps = {
   params: Promise<{
@@ -9,15 +9,14 @@ type ProjectPageProps = {
   }>;
 };
 
-export function generateStaticParams() {
-  return projects.map((project) => ({
-    slug: project.slug,
-  }));
+export async function generateStaticParams() {
+  const slugs = await getProjectSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: ProjectPageProps) {
   const { slug } = await params;
-  const project = projects.find((item) => item.slug === slug);
+  const project = await getProjectBySlug(slug);
 
   return {
     title: project ? `${project.title} | DS Portfolio` : "Project | DS Portfolio",
@@ -27,7 +26,7 @@ export async function generateMetadata({ params }: ProjectPageProps) {
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { slug } = await params;
-  const project = projects.find((item) => item.slug === slug);
+  const [project, settings] = await Promise.all([getProjectBySlug(slug), getSiteSettings()]);
 
   if (!project) {
     notFound();
@@ -35,7 +34,11 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
   return (
     <main className="page-shell project-page">
-      <Header />
+      <Header
+        statement={settings?.headerStatement}
+        email={settings?.email}
+        linkedin={settings?.linkedin}
+      />
       <section className="project-hero">
         <Link className="back-link" href="/#work">
           Back to work

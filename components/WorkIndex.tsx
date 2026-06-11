@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Grid2X2, List, X } from "lucide-react";
-import { workFilters, workItems, type WorkFilter, type WorkItem } from "@/data/projects";
+import { workFilters, type WorkFilter, type WorkItem } from "@/lib/types";
 import { RivePreview } from "./RivePreview";
 
 function ArchiveVideo({
@@ -143,15 +143,16 @@ function WorkMedia({ item, shouldPlay }: { item: WorkItem; shouldPlay: boolean }
   return <span>{item.code}</span>;
 }
 
-export function WorkIndex() {
+export function WorkIndex({ items }: { items: WorkItem[] }) {
   const [activeFilter, setActiveFilter] = useState<WorkFilter>("Everything");
   const [view, setView] = useState<"grid" | "list">("grid");
   const [activeVideo, setActiveVideo] = useState<WorkItem | null>(null);
   const [activePreview, setActivePreview] = useState<string | null>(null);
 
   const filteredItems = useMemo(() => {
-    return workItems.filter((item) => item.tags.includes(activeFilter));
-  }, [activeFilter]);
+    if (activeFilter === "Everything") return items;
+    return items.filter((item) => item.tags.includes(activeFilter));
+  }, [activeFilter, items]);
 
   return (
     <section className="work-archive">

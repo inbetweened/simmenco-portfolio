@@ -4,17 +4,25 @@ import { useState } from "react";
 import Link from "next/link";
 import { LogoAnimation } from "./LogoAnimation";
 
-export function Header() {
+type HeaderProps = {
+  statement?: string | null;
+  email?: string | null;
+  linkedin?: string | null;
+};
+
+export function Header({ statement, email, linkedin }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const headerStatement =
+    statement ?? "A collection of work across print, motion, digital, and everything in between.";
+  const emailAddress = email ?? "daniel@simmen.co";
+  const linkedinUrl = linkedin ?? "https://www.linkedin.com/in/danielsimmen";
 
   return (
     <header className={`site-header ${isOpen ? "menu-open" : ""}`}>
       <Link href="/" className="brand-mark" aria-label="DS home" onClick={() => setIsOpen(false)}>
         <LogoAnimation />
       </Link>
-      <p className="header-statement">
-        A collection of work across print, motion, digital, and everything in between.
-      </p>
+      <p className="header-statement">{headerStatement}</p>
       <div className="header-actions">
         <Link href="/work" onClick={() => setIsOpen(false)}>
           Work
@@ -53,10 +61,10 @@ export function Header() {
         </div>
         <div className="menu-footer">
           <span>© 2026 Daniel Simmen</span>
-          <a href="mailto:daniel@simmen.co">
+          <a href={`mailto:${emailAddress}`}>
             Email
           </a>
-          <a href="https://www.linkedin.com/in/danielsimmen" target="_blank" rel="noreferrer">
+          <a href={linkedinUrl} target="_blank" rel="noreferrer">
             LinkedIn
           </a>
         </div>

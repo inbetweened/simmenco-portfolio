@@ -1,11 +1,19 @@
 import { Header } from "@/components/Header";
 import { ContactPanel } from "@/components/ContactPanel";
 import Link from "next/link";
+import { getSiteSettings } from "@/lib/sanity/fetch";
 
-export default function Home() {
+export default async function Home() {
+  const settings = await getSiteSettings();
+  const featuredVideo = settings?.featuredVideo ?? "/videos/motion-design-intro-2.mp4";
+
   return (
     <main className="page-shell">
-      <Header />
+      <Header
+        statement={settings?.headerStatement}
+        email={settings?.email}
+        linkedin={settings?.linkedin}
+      />
 
       <section className="section motion-studies" id="motion-studies">
         <div className="section-kicker">
@@ -16,14 +24,14 @@ export default function Home() {
           <article className="motion-study">
             <video
               className="motion-study-video"
-              src="/videos/motion-design-intro-2.mp4"
+              src={featuredVideo}
               autoPlay
               loop
               muted
-            playsInline
-            preload="metadata"
-          />
-        </article>
+              playsInline
+              preload="metadata"
+            />
+          </article>
           <Link className="work-cta" href="/work">
             <span>View Work</span>
           </Link>
@@ -35,7 +43,12 @@ export default function Home() {
           <span>Contact</span>
           <span>02</span>
         </div>
-        <ContactPanel />
+        <ContactPanel
+          heading={settings?.contactHeading}
+          body={settings?.contactBody}
+          email={settings?.email}
+          linkedin={settings?.linkedin}
+        />
       </section>
     </main>
   );

@@ -3,11 +3,22 @@
 import { useState } from "react";
 import { ArrowUpRight, Check, Copy, Link as LinkIcon, Mail } from "lucide-react";
 
-const email = "daniel@simmen.co";
-const linkedin = "https://www.linkedin.com/in/danielsimmen";
+type ContactPanelProps = {
+  heading?: string | null;
+  body?: string | null;
+  email?: string | null;
+  linkedin?: string | null;
+};
 
-export function ContactPanel() {
+export function ContactPanel({
+  heading,
+  body,
+  email: emailProp,
+  linkedin: linkedinProp,
+}: ContactPanelProps) {
   const [copied, setCopied] = useState(false);
+  const email = emailProp ?? "daniel@simmen.co";
+  const linkedin = linkedinProp ?? "https://www.linkedin.com/in/danielsimmen";
 
   async function copyEmail() {
     await navigator.clipboard.writeText(email);
@@ -18,9 +29,10 @@ export function ContactPanel() {
   return (
     <div className="contact-panel">
       <div className="contact-copy">
-        <h2>Let&apos;s Make It Sharp.</h2>
+        <h2>{heading ?? "Let's Make It Sharp."}</h2>
         <p>
-          Available for motion design, visual systems, interactive web work, and brand-led digital projects.
+          {body ??
+            "Available for motion design, visual systems, interactive web work, and brand-led digital projects."}
         </p>
       </div>
 
