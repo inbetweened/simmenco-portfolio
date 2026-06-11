@@ -1,48 +1,35 @@
 import { cache } from "react";
-import type { QueryParams } from "next-sanity";
-import type { Project, SiteSettings, WorkItem } from "@/lib/types";
-import { client } from "./client";
+import type { ProjectNeighbor, ProjectPage, SiteSettings, WorkItem } from "@/lib/types";
+import { sanityFetch } from "./live";
 import {
-  projectBySlugQuery,
+  projectNeighborsQuery,
+  projectPageQuery,
   projectSlugsQuery,
   siteSettingsQuery,
   workItemsQuery,
 } from "./queries";
 
-export async function sanityFetch<T>({
-  query,
-  params = {},
-  tags,
-}: {
-  query: string;
-  params?: QueryParams;
-  tags: string[];
-}): Promise<T> {
-  return client.fetch<T>(query, params, {
-    cache: "force-cache",
-    next: { tags },
-  });
-}
+export const getWorkItems = cache(async () => {
+  const { data } = await sanityFetch({ query: workItemsQuery });
+  return data as WorkItem[];
+});
 
-export const getWorkItems = cache(() =>
-  sanityFetch<WorkItem[]>({ query: workItemsQuery, tags: ["workItem"] }),
-);
+export const getSiteSettings = cache(async () => {
+  const { data } = await sanityFetch({ query: siteSettingsQuery });
+  return data as SiteSettings | null;
+});
 
-// featuredVideo dereferences a workItem, so both tags apply
-export const getSiteSettings = cache(() =>
-  sanityFetch<SiteSettings | null>({
-    query: siteSettingsQuery,
-    tags: ["siteSettings", "workItem"],
-  }),
-);
+export const getProjectPage = cache(async (slug: string) => {
+  const { data } = await sanityFetch({ query: projectPageQuery, params: { slug } });
+  return data as ProjectPage | null;
+});
 
-export const getProjectBySlug = cache((slug: string) =>
-  sanityFetch<Project | null>({
-    query: projectBySlugQuery,
-    params: { slug },
-    tags: ["workItem"],
-  }),
-);
+export const getProjectNeighbors = cache(async () => {
+  const { data } = await sanityFetch({ query: projectNeighborsQuery });
+  return data as ProjectNeighbor[];
+});
 
-export const getProjectSlugs = () =>
-  sanityFetch<string[]>({ query: projectSlugsQuery, tags: ["workItem"] });
+export const getProjectSlugs = async () => {
+  const { data } = await sanityFetch({ query: projectSlugsQuery, perspective: "published", stega: false });
+  return data as string[];
+};

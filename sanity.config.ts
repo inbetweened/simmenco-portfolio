@@ -2,6 +2,7 @@
 
 import { visionTool } from "@sanity/vision";
 import { defineConfig } from "sanity";
+import { presentationTool } from "sanity/presentation";
 import { structureTool } from "sanity/structure";
 import { apiVersion, dataset, projectId } from "@/lib/sanity/env";
 import { schemaTypes } from "@/sanity/schemaTypes";
@@ -12,6 +13,13 @@ export default defineConfig({
   dataset,
   title: "Simmen Portfolio",
   plugins: [
+    presentationTool({
+      previewUrl: {
+        previewMode: {
+          enable: "/api/draft-mode/enable",
+        },
+      },
+    }),
     structureTool({
       structure: (S) =>
         S.list()

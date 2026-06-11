@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/Header";
-import { getProjectBySlug, getProjectSlugs, getSiteSettings } from "@/lib/sanity/fetch";
+import { BlockRenderer } from "@/components/blocks/Blocks";
+import {
+  getProjectNeighbors,
+  getProjectPage,
+  getProjectSlugs,
+  getSiteSettings,
+} from "@/lib/sanity/fetch";
 
 type ProjectPageProps = {
   params: Promise<{
@@ -16,57 +22,83 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: ProjectPageProps) {
   const { slug } = await params;
-  const project = await getProjectBySlug(slug);
+  const project = await getProjectPage(slug);
 
   return {
     title: project ? `${project.title} | DS Portfolio` : "Project | DS Portfolio",
-    description: project?.summary,
+    description: project?.summary ?? undefined,
   };
 }
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { slug } = await params;
-  const [project, settings] = await Promise.all([getProjectBySlug(slug), getSiteSettings()]);
+  const [project, settings, neighbors] = await Promise.all([
+    getProjectPage(slug),
+    getSiteSettings(),
+    getProjectNeighbors(),
+  ]);
 
   if (!project) {
     notFound();
   }
 
+  const themeStyle = {
+    "--case-bg": project.theme?.background ?? "var(--paper)",
+    "--case-ink": project.theme?.text ?? "var(--ink)",
+    "--accent": project.accent ?? "var(--signal)",
+  } as React.CSSProperties;
+
+  const index = neighbors.findIndex((item) => item.slug === project.slug);
+  const previous = index > 0 ? neighbors[index - 1] : null;
+  const next = index >= 0 && index < neighbors.length - 1 ? neighbors[index + 1] : null;
+
   return (
-    <main className="page-shell project-page">
+    <main className="page-shell case-page" style={themeStyle}>
       <Header
         statement={settings?.headerStatement}
         email={settings?.email}
         linkedin={settings?.linkedin}
       />
-      <section className="project-hero">
-        <Link className="back-link" href="/#work">
+
+      <section className="case-intro">
+        <Link className="back-link" href="/work">
           Back to work
         </Link>
         <h1>{project.title}</h1>
-        <div className="project-hero-media" style={{ "--accent": project.accent } as React.CSSProperties}>
-          <span>{project.code}</span>
+        <div className="case-facts">
+          {[project.category, project.year, project.role].filter(Boolean).map((fact) => (
+            <span key={fact as string}>{fact}</span>
+          ))}
         </div>
+        {project.summary ? <p className="case-summary">{project.summary}</p> : null}
       </section>
 
-      <section className="project-body">
-        <aside className="facts">
-          <span>{project.category}</span>
-          <span>{project.year}</span>
-          <span>{project.role}</span>
-        </aside>
-        <div className="project-copy">
-          <p>{project.summary}</p>
-          <div>
-            <h2>Story</h2>
-            <p>{project.story}</p>
-          </div>
-          <div>
-            <h2>Result</h2>
-            <p>{project.result}</p>
-          </div>
+      {project.blocks?.length ? (
+        <div className="case-blocks">
+          {project.blocks.map((block) => (
+            <BlockRenderer key={block._key} block={block} title={project.title} />
+          ))}
         </div>
-      </section>
+      ) : null}
+
+      {previous || next ? (
+        <nav className="case-nav" aria-label="More projects">
+          {previous ? (
+            <Link href={`/work/${previous.slug}`}>
+              <span>Previous</span>
+              <strong>{previous.title}</strong>
+            </Link>
+          ) : (
+            <span />
+          )}
+          {next ? (
+            <Link className="is-next" href={`/work/${next.slug}`}>
+              <span>Next</span>
+              <strong>{next.title}</strong>
+            </Link>
+          ) : null}
+        </nav>
+      ) : null}
     </main>
   );
 }
